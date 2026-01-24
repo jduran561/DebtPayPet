@@ -10,10 +10,12 @@ import {
   DebtList,
   AddDebtForm,
   StrategySelector,
+  NotificationSettings,
+  ReminderBanner,
 } from './components';
 import { useDebtStore } from './store';
 
-type Tab = 'dashboard' | 'debts' | 'strategy';
+type Tab = 'dashboard' | 'debts' | 'strategy' | 'settings';
 
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
@@ -24,6 +26,7 @@ function App() {
     { id: 'dashboard', label: 'Dashboard', emoji: '🏠' },
     { id: 'debts', label: 'Debts', emoji: '💳' },
     { id: 'strategy', label: 'Strategy', emoji: '📊' },
+    { id: 'settings', label: 'Settings', emoji: '⚙️' },
   ];
 
   return (
@@ -74,6 +77,9 @@ function App() {
 
       {/* Main Content */}
       <main className="max-w-4xl mx-auto px-4 py-6">
+        {/* Reminder Banner - shows on all tabs */}
+        <ReminderBanner />
+
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
             {/* Pet and Summary side by side on larger screens */}
@@ -158,6 +164,12 @@ function App() {
                 </div>
               </div>
             </div>
+          </div>
+        )}
+
+        {activeTab === 'settings' && (
+          <div className="space-y-6">
+            <NotificationSettings />
           </div>
         )}
       </main>

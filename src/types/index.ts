@@ -4,6 +4,7 @@
 
 export * from './debt';
 export * from './pet';
+export * from './notifications';
 
 // App-wide types
 export interface User {
