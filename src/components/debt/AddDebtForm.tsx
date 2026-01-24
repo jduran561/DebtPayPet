@@ -1,0 +1,253 @@
+/**
+ * AddDebtForm - Form for adding a new debt
+ */
+
+import { useState } from 'react';
+import { useDebtStore } from '../../store';
+import { usePetStore } from '../../store';
+import type { DebtCategory } from '../../types/debt';
+import { XP_REWARDS } from '../../types/pet';
+
+interface AddDebtFormProps {
+  onClose: () => void;
+  isFirstDebt?: boolean;
+}
+
+const categories: { value: DebtCategory; label: string; emoji: string }[] = [
+  { value: 'credit_card', label: 'Credit Card', emoji: '💳' },
+  { value: 'student_loan', label: 'Student Loan', emoji: '🎓' },
+  { value: 'auto_loan', label: 'Auto Loan', emoji: '🚗' },
+  { value: 'personal_loan', label: 'Personal Loan', emoji: '💰' },
+  { value: 'medical', label: 'Medical', emoji: '🏥' },
+  { value: 'mortgage', label: 'Mortgage', emoji: '🏠' },
+  { value: 'other', label: 'Other', emoji: '📋' },
+];
+
+export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) {
+  const [name, setName] = useState('');
+  const [nickname, setNickname] = useState('');
+  const [balance, setBalance] = useState('');
+  const [interestRate, setInterestRate] = useState('');
+  const [minimumPayment, setMinimumPayment] = useState('');
+  const [dueDay, setDueDay] = useState('1');
+  const [category, setCategory] = useState<DebtCategory>('credit_card');
+  const [notes, setNotes] = useState('');
+
+  const { addDebt, debts } = useDebtStore();
+  const { addXp } = usePetStore();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+
+    const balanceNum = parseFloat(balance);
+    const interestNum = parseFloat(interestRate);
+    const minPaymentNum = parseFloat(minimumPayment);
+    const dueDayNum = parseInt(dueDay);
+
+    if (isNaN(balanceNum) || isNaN(interestNum) || isNaN(minPaymentNum)) {
+      return;
+    }
+
+    addDebt({
+      name,
+      nickname: nickname || undefined,
+      originalBalance: balanceNum,
+      currentBalance: balanceNum,
+      interestRate: interestNum,
+      minimumPayment: minPaymentNum,
+      dueDay: dueDayNum,
+      category,
+      notes: notes || undefined,
+    });
+
+    // Award XP for adding first debt
+    if (debts.length === 0) {
+      addXp(XP_REWARDS.special.firstDebtAdded, 'Added first debt - journey begins!');
+    }
+
+    onClose();
+  };
+
+  return (
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
+      <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 my-8">
+        <h3 className="text-xl font-bold text-gray-800 mb-2">
+          {isFirstDebt ? 'Add Your First Debt' : 'Add New Debt'}
+        </h3>
+        {isFirstDebt && (
+          <p className="text-sm text-gray-500 mb-4">
+            Start your debt-free journey! Adding your first debt earns you {XP_REWARDS.special.firstDebtAdded} XP.
+          </p>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-4">
+          {/* Debt Name */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Debt Name *
+            </label>
+            <input
+              type="text"
+              value={name}
+              onChange={(e) => setName(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              placeholder="e.g., Chase Sapphire Preferred"
+              required
+            />
+          </div>
+
+          {/* Nickname */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Nickname (optional)
+            </label>
+            <input
+              type="text"
+              value={nickname}
+              onChange={(e) => setNickname(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              placeholder="e.g., The Beast, Vacation Hangover"
+            />
+            <p className="text-xs text-gray-400 mt-1">A fun name to motivate you</p>
+          </div>
+
+          {/* Category */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Category *
+            </label>
+            <div className="grid grid-cols-4 gap-2">
+              {categories.map((cat) => (
+                <button
+                  key={cat.value}
+                  type="button"
+                  onClick={() => setCategory(cat.value)}
+                  className={`py-2 px-2 rounded-lg text-center transition-colors ${
+                    category === cat.value
+                      ? 'bg-brand-primary text-white'
+                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                  }`}
+                >
+                  <span className="text-lg block">{cat.emoji}</span>
+                  <span className="text-xs">{cat.label}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          {/* Balance and Interest Rate - Side by side */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Current Balance *
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0.01"
+                  value={balance}
+                  onChange={(e) => setBalance(e.target.value)}
+                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Interest Rate *
+              </label>
+              <div className="relative">
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  max="100"
+                  value={interestRate}
+                  onChange={(e) => setInterestRate(e.target.value)}
+                  className="w-full pr-8 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  placeholder="18.99"
+                  required
+                />
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Minimum Payment and Due Day - Side by side */}
+          <div className="grid grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Minimum Payment *
+              </label>
+              <div className="relative">
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  min="0"
+                  value={minimumPayment}
+                  onChange={(e) => setMinimumPayment(e.target.value)}
+                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  placeholder="0.00"
+                  required
+                />
+              </div>
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-1">
+                Due Day of Month
+              </label>
+              <select
+                value={dueDay}
+                onChange={(e) => setDueDay(e.target.value)}
+                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              >
+                {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
+                  <option key={day} value={day}>
+                    {day}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </div>
+
+          {/* Notes */}
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Notes (optional)
+            </label>
+            <textarea
+              value={notes}
+              onChange={(e) => setNotes(e.target.value)}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent resize-none"
+              rows={2}
+              placeholder="Any additional notes..."
+            />
+          </div>
+
+          {/* Submit Buttons */}
+          <div className="flex gap-3 pt-2">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 py-2 px-4 bg-brand-primary text-white rounded-lg hover:bg-brand-primary/90 transition-colors font-medium"
+            >
+              Add Debt
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  );
+}

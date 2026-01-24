@@ -1,0 +1,33 @@
+@import "tailwindcss";
+
+/* DebtPetApp Custom Styles */
+@theme {
+  /* Custom colors for the app */
+  --color-penny-egg: #f5e6d3;
+  --color-penny-hatchling: #a8d5ba;
+  --color-penny-juvenile: #7fb069;
+  --color-penny-adult: #2d6a4f;
+  --color-penny-legendary: #9d4edd;
+
+  /* Debt status colors */
+  --color-debt-danger: #ef4444;
+  --color-debt-warning: #f59e0b;
+  --color-debt-good: #22c55e;
+  --color-debt-paid: #06b6d4;
+
+  /* App brand colors */
+  --color-brand-primary: #6366f1;
+  --color-brand-secondary: #8b5cf6;
+  --color-brand-accent: #f59e0b;
+}
+
+/* Base styles */
+body {
+  @apply bg-gray-50 text-gray-900 antialiased;
+  min-height: 100vh;
+}
+
+/* Smooth transitions for pet animations */
+.pet-transition {
+  @apply transition-all duration-500 ease-in-out;
+}
