@@ -7,8 +7,15 @@ import { persist } from 'zustand/middleware';
 import type { Pet, PetStage, EvolutionEvent, PetMood } from '../types/pet';
 import { EVOLUTION_THRESHOLDS } from '../types/pet';
 
+// Evolution callback type for external listeners
+type EvolutionCallback = (fromStage: PetStage, toStage: PetStage) => void;
+
+// Global evolution listeners (outside store to avoid serialization issues)
+const evolutionListeners: Set<EvolutionCallback> = new Set();
+
 interface PetState {
   pet: Pet;
+  lastEvolution: { from: PetStage; to: PetStage } | null; // Track last evolution for reactive updates
 
   // Actions
   addXp: (amount: number, reason: string) => void;
@@ -18,12 +25,24 @@ interface PetState {
   checkEvolution: () => boolean; // Returns true if evolved
   recordFeeding: () => void;
   setAccessory: (accessory: string | undefined) => void;
+  clearLastEvolution: () => void;
 
   // Computed helpers
   getMood: () => PetMood;
   getXpToNextStage: () => number;
   getProgressToNextStage: () => number; // 0-100 percentage
 }
+
+// Subscribe to evolution events
+export const subscribeToEvolution = (callback: EvolutionCallback): (() => void) => {
+  evolutionListeners.add(callback);
+  return () => evolutionListeners.delete(callback);
+};
+
+// Notify all evolution listeners
+const notifyEvolutionListeners = (from: PetStage, to: PetStage) => {
+  evolutionListeners.forEach(callback => callback(from, to));
+};
 
 const getNextStage = (currentStage: PetStage): PetStage | null => {
   const stages: PetStage[] = ['egg', 'hatchling', 'juvenile', 'adult', 'legendary'];
@@ -52,6 +71,7 @@ export const usePetStore = create<PetState>()(
   persist(
     (set, get) => ({
       pet: createInitialPet(),
+      lastEvolution: null,
 
       addXp: (amount, reason) => {
         set((state) => {
@@ -115,6 +135,8 @@ export const usePetStore = create<PetState>()(
             triggerMilestone: `Reached ${threshold} XP`,
           };
 
+          const fromStage = pet.stage;
+
           set((state) => ({
             pet: {
               ...state.pet,
@@ -122,13 +144,22 @@ export const usePetStore = create<PetState>()(
               evolutionHistory: [...state.pet.evolutionHistory, evolutionEvent],
               happiness: Math.min(100, state.pet.happiness + 20), // Evolution joy!
             },
+            lastEvolution: { from: fromStage, to: nextStage },
           }));
 
-          console.log(`[Pet] EVOLVED from ${pet.stage} to ${nextStage}!`);
+          console.log(`[Pet] EVOLVED from ${fromStage} to ${nextStage}!`);
+
+          // Notify listeners about evolution
+          notifyEvolutionListeners(fromStage, nextStage);
+
           return true;
         }
 
         return false;
+      },
+
+      clearLastEvolution: () => {
+        set({ lastEvolution: null });
       },
 
       recordFeeding: () => {

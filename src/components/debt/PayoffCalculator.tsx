@@ -76,10 +76,10 @@ export function PayoffCalculator() {
 
   if (activeDebts.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-6 text-center">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-lg p-6 text-center">
         <div className="text-4xl mb-2">🧮</div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">Payoff Calculator</h3>
-        <p className="text-gray-500">Add debts to see your payoff estimates</p>
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">Payoff Calculator</h3>
+        <p className="text-gray-500 dark:text-gray-400">Add debts to see your payoff estimates</p>
       </div>
     );
   }
@@ -131,39 +131,39 @@ export function PayoffCalculator() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">Payoff Calculator</h2>
+    <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-lg p-6">
+      <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Payoff Calculator</h2>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-3 mb-6">
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-500">Total Debt</p>
+        <div className="bg-gray-50 dark:bg-dark-surface-elevated rounded-lg p-3 text-center">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Total Debt</p>
           <p className="text-lg font-bold text-debt-danger">{formatCurrency(totalDebt)}</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-500">Monthly Minimums</p>
-          <p className="text-lg font-bold text-gray-700">{formatCurrency(totalMinPayments)}</p>
+        <div className="bg-gray-50 dark:bg-dark-surface-elevated rounded-lg p-3 text-center">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Monthly Minimums</p>
+          <p className="text-lg font-bold text-gray-700 dark:text-gray-200">{formatCurrency(totalMinPayments)}</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-500">Debt-Free Date</p>
+        <div className="bg-gray-50 dark:bg-dark-surface-elevated rounded-lg p-3 text-center">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Debt-Free Date</p>
           <p className="text-lg font-bold text-brand-primary">{formatDate(lastPayoffDate)}</p>
         </div>
-        <div className="bg-gray-50 rounded-lg p-3 text-center">
-          <p className="text-xs text-gray-500">Total Interest</p>
-          <p className="text-lg font-bold text-amber-600">{formatCurrency(totalInterestMinimums)}</p>
+        <div className="bg-gray-50 dark:bg-dark-surface-elevated rounded-lg p-3 text-center">
+          <p className="text-xs text-gray-500 dark:text-gray-400">Total Interest</p>
+          <p className="text-lg font-bold text-amber-600 dark:text-amber-500">{formatCurrency(totalInterestMinimums)}</p>
         </div>
       </div>
 
       {/* Savings Tip */}
       {interestSavings > 0 && (
-        <div className="bg-green-50 border border-green-200 rounded-lg p-4 mb-6">
+        <div className="bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg p-4 mb-6">
           <div className="flex items-start gap-3">
             <span className="text-2xl">💰</span>
             <div>
-              <p className="font-medium text-green-800">
+              <p className="font-medium text-green-800 dark:text-green-300">
                 Pay ${extraPaymentAmount} extra monthly on your target debt
               </p>
-              <p className="text-sm text-green-600">
+              <p className="text-sm text-green-600 dark:text-green-400">
                 You could save <span className="font-bold">{formatCurrency(interestSavings)}</span> in interest!
               </p>
             </div>
@@ -173,7 +173,7 @@ export function PayoffCalculator() {
 
       {/* Individual Debt Estimates */}
       <div className="space-y-3">
-        <h3 className="text-sm font-medium text-gray-500 uppercase tracking-wide">
+        <h3 className="text-sm font-medium text-gray-500 dark:text-gray-400 uppercase tracking-wide">
           Individual Payoff Estimates
         </h3>
 
@@ -186,13 +186,13 @@ export function PayoffCalculator() {
             <div
               key={estimate.debt.id}
               className={`border rounded-lg p-4 ${
-                index === 0 ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'
+                index === 0 ? 'border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10' : 'border-gray-200 dark:border-dark-border'
               }`}
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h4 className="font-medium text-gray-800">
+                    <h4 className="font-medium text-gray-800 dark:text-gray-100">
                       {estimate.debt.nickname || estimate.debt.name}
                     </h4>
                     {index === 0 && (
@@ -201,22 +201,22 @@ export function PayoffCalculator() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {estimate.debt.interestRate}% APR
                   </p>
                 </div>
                 <div className="text-right">
-                  <p className="font-bold text-gray-800">
+                  <p className="font-bold text-gray-800 dark:text-gray-100">
                     {formatCurrency(estimate.debt.currentBalance)}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
                     {progressPercent}% paid
                   </p>
                 </div>
               </div>
 
               {/* Progress bar */}
-              <div className="h-2 bg-gray-200 rounded-full overflow-hidden mb-3">
+              <div className="h-2 bg-gray-200 dark:bg-dark-surface-elevated rounded-full overflow-hidden mb-3">
                 <div
                   className="h-full bg-debt-good transition-all duration-300"
                   style={{ width: `${progressPercent}%` }}
@@ -225,19 +225,19 @@ export function PayoffCalculator() {
 
               <div className="flex justify-between text-sm">
                 <div>
-                  <span className="text-gray-500">Payoff in:</span>{' '}
-                  <span className="font-medium text-gray-700">
+                  <span className="text-gray-500 dark:text-gray-400">Payoff in:</span>{' '}
+                  <span className="font-medium text-gray-700 dark:text-gray-200">
                     {formatMonths(estimate.monthsToPayoff)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Interest:</span>{' '}
-                  <span className="font-medium text-amber-600">
+                  <span className="text-gray-500 dark:text-gray-400">Interest:</span>{' '}
+                  <span className="font-medium text-amber-600 dark:text-amber-500">
                     {formatCurrency(estimate.totalInterest)}
                   </span>
                 </div>
                 <div>
-                  <span className="text-gray-500">Free by:</span>{' '}
+                  <span className="text-gray-500 dark:text-gray-400">Free by:</span>{' '}
                   <span className="font-medium text-brand-primary">
                     {formatDate(estimate.payoffDate)}
                   </span>
@@ -249,7 +249,7 @@ export function PayoffCalculator() {
       </div>
 
       {/* Disclaimer */}
-      <p className="text-xs text-gray-400 mt-4 text-center">
+      <p className="text-xs text-gray-400 dark:text-gray-500 mt-4 text-center">
         Estimates based on current balances and minimum payments. Actual results may vary.
       </p>
     </div>

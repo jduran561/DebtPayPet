@@ -110,13 +110,13 @@ export function ReminderBanner() {
   if (!reminder) return null;
 
   return (
-    <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 rounded-r-lg p-4 mb-4 shadow-sm">
+    <div className="bg-gradient-to-r from-amber-50 to-orange-50 dark:from-amber-900/20 dark:to-orange-900/20 border-l-4 border-amber-400 dark:border-amber-500 rounded-r-lg p-4 mb-4 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-start gap-3">
           <span className="text-2xl flex-shrink-0">{reminder.emoji}</span>
           <div>
-            <p className="font-medium text-amber-800">{reminder.message}</p>
-            <p className="text-sm text-amber-600 mt-1">
+            <p className="font-medium text-amber-800 dark:text-amber-200">{reminder.message}</p>
+            <p className="text-sm text-amber-600 dark:text-amber-400 mt-1">
               {reminder.type === 'due_date' &&
                 'Make a payment to keep Penny happy!'}
               {reminder.type === 'weekly' &&
@@ -128,7 +128,7 @@ export function ReminderBanner() {
         </div>
         <button
           onClick={handleDismiss}
-          className="text-amber-400 hover:text-amber-600 transition-colors p-1"
+          className="text-amber-400 dark:text-amber-500 hover:text-amber-600 dark:hover:text-amber-300 transition-colors p-1"
           aria-label="Dismiss reminder"
         >
           <svg

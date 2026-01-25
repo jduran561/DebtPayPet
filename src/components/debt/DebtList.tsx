@@ -7,6 +7,8 @@ import { useDebtStore } from '../../store';
 import { usePetStore } from '../../store';
 import type { Debt, PaymentType, DebtCategory } from '../../types/debt';
 import { XP_REWARDS } from '../../types/pet';
+import { useAchievementChecker } from '../../hooks/useAchievementChecker';
+import { useConfetti } from '../../hooks/useConfetti';
 
 interface PaymentModalProps {
   debt: Debt;
@@ -19,8 +21,10 @@ function PaymentModal({ debt, onClose }: PaymentModalProps) {
   const [notes, setNotes] = useState('');
   const [error, setError] = useState('');
 
-  const { addPayment } = useDebtStore();
+  const { addPayment, debts } = useDebtStore();
   const { addXp, recordFeeding } = usePetStore();
+  const { onPaymentMade, checkDebtMilestones } = useAchievementChecker();
+  const { triggerBig, triggerMassive } = useConfetti();
 
   const validatePayment = (): boolean => {
     const paymentAmount = parseFloat(amount);
@@ -52,6 +56,8 @@ function PaymentModal({ debt, onClose }: PaymentModalProps) {
     }
 
     const paymentAmount = parseFloat(amount);
+    const newBalance = Math.max(0, debt.currentBalance - paymentAmount);
+    const isDebtPaidOff = newBalance === 0;
 
     // Add the payment
     addPayment({
@@ -73,18 +79,39 @@ function PaymentModal({ debt, onClose }: PaymentModalProps) {
     addXp(xpAmount, `${paymentType} payment on ${debt.name}`);
     recordFeeding();
 
+    // Track payment for achievements
+    onPaymentMade();
+
+    // Check if this payment paid off the debt
+    if (isDebtPaidOff) {
+      // Check if ALL debts are now paid off
+      const otherDebts = debts.filter(d => d.id !== debt.id);
+      const allDebtsPaidOff = otherDebts.every(d => d.currentBalance === 0);
+
+      if (allDebtsPaidOff && debts.length > 0) {
+        // All debts paid off - massive celebration!
+        triggerMassive();
+      } else {
+        // Just this debt paid off - big celebration
+        triggerBig();
+      }
+
+      // Re-check debt milestones
+      setTimeout(checkDebtMilestones, 100);
+    }
+
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4">
-      <div className="bg-white rounded-2xl shadow-xl max-w-md w-full p-6">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-xl max-w-md w-full p-6">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
           Make Payment on {debt.nickname || debt.name}
         </h3>
 
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-500">Current Balance</p>
+        <div className="mb-4 p-3 bg-gray-50 dark:bg-dark-surface-elevated rounded-lg">
+          <p className="text-sm text-gray-500 dark:text-gray-400">Current Balance</p>
           <p className="text-2xl font-bold text-debt-danger">
             ${debt.currentBalance.toLocaleString('en-US', { minimumFractionDigits: 2 })}
           </p>
@@ -92,11 +119,11 @@ function PaymentModal({ debt, onClose }: PaymentModalProps) {
 
         <form onSubmit={handleSubmit} className="space-y-4">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Payment Amount
             </label>
             <div className="relative">
-              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+              <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
               <input
                 type="number"
                 step="0.01"
@@ -106,8 +133,8 @@ function PaymentModal({ debt, onClose }: PaymentModalProps) {
                   setAmount(e.target.value);
                   if (error) setError('');
                 }}
-                className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-                  error ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 ${
+                  error ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-dark-border'
                 }`}
                 placeholder="0.00"
                 required
@@ -119,7 +146,7 @@ function PaymentModal({ debt, onClose }: PaymentModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Payment Type
             </label>
             <div className="grid grid-cols-3 gap-2">
@@ -135,7 +162,7 @@ function PaymentModal({ debt, onClose }: PaymentModalProps) {
                   className={`py-2 px-3 rounded-lg text-sm font-medium transition-colors ${
                     paymentType === option.value
                       ? 'bg-brand-primary text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-dark-surface-elevated text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border'
                   }`}
                 >
                   {option.label}
@@ -146,14 +173,14 @@ function PaymentModal({ debt, onClose }: PaymentModalProps) {
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Notes (optional)
             </label>
             <input
               type="text"
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100"
               placeholder="Any notes about this payment..."
             />
           </div>
@@ -162,7 +189,7 @@ function PaymentModal({ debt, onClose }: PaymentModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 py-2 px-4 border border-gray-300 dark:border-dark-border rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-surface-elevated transition-colors"
             >
               Cancel
             </button>
@@ -233,11 +260,11 @@ function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps) {
   const getPaymentTypeLabel = (type: PaymentType) => {
     switch (type) {
       case 'minimum':
-        return { label: 'Minimum', color: 'bg-gray-100 text-gray-600' };
+        return { label: 'Minimum', color: 'bg-gray-100 dark:bg-dark-surface-elevated text-gray-600 dark:text-gray-300' };
       case 'extra':
-        return { label: 'Extra', color: 'bg-blue-100 text-blue-600' };
+        return { label: 'Extra', color: 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400' };
       case 'lump_sum':
-        return { label: 'Lump Sum', color: 'bg-green-100 text-green-600' };
+        return { label: 'Lump Sum', color: 'bg-green-100 dark:bg-green-900/30 text-green-600 dark:text-green-400' };
     }
   };
 
@@ -245,29 +272,29 @@ function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 my-8">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-xl max-w-lg w-full p-6 my-8">
         <div className="flex items-center justify-between mb-4">
-          <h3 className="text-xl font-bold text-gray-800">
+          <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100">
             Payment History
           </h3>
           <button
             onClick={onClose}
-            className="text-gray-400 hover:text-gray-600 text-2xl"
+            className="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300 text-2xl"
           >
             &times;
           </button>
         </div>
 
-        <div className="mb-4 p-3 bg-gray-50 rounded-lg">
-          <p className="text-sm text-gray-500">{debt.nickname || debt.name}</p>
+        <div className="mb-4 p-3 bg-gray-50 dark:bg-dark-surface-elevated rounded-lg">
+          <p className="text-sm text-gray-500 dark:text-gray-400">{debt.nickname || debt.name}</p>
           <div className="flex justify-between items-end mt-1">
             <div>
-              <p className="text-xs text-gray-400">Total Paid</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Total Paid</p>
               <p className="text-lg font-bold text-debt-good">{formatCurrency(totalPaid)}</p>
             </div>
             <div className="text-right">
-              <p className="text-xs text-gray-400">Payments Made</p>
-              <p className="text-lg font-bold text-gray-700">{payments.length}</p>
+              <p className="text-xs text-gray-400 dark:text-gray-500">Payments Made</p>
+              <p className="text-lg font-bold text-gray-700 dark:text-gray-200">{payments.length}</p>
             </div>
           </div>
         </div>
@@ -275,8 +302,8 @@ function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps) {
         {payments.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-4xl mb-2">📭</div>
-            <p className="text-gray-500">No payments recorded yet</p>
-            <p className="text-sm text-gray-400">Make your first payment to see it here!</p>
+            <p className="text-gray-500 dark:text-gray-400">No payments recorded yet</p>
+            <p className="text-sm text-gray-400 dark:text-gray-500">Make your first payment to see it here!</p>
           </div>
         ) : (
           <div className="space-y-2 max-h-80 overflow-y-auto">
@@ -285,17 +312,17 @@ function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps) {
               return (
                 <div
                   key={payment.id}
-                  className="flex items-center justify-between p-3 border border-gray-100 rounded-lg hover:bg-gray-50"
+                  className="flex items-center justify-between p-3 border border-gray-100 dark:border-dark-border rounded-lg hover:bg-gray-50 dark:hover:bg-dark-surface-elevated"
                 >
                   <div className="flex items-center gap-3">
                     <div className="w-10 h-10 rounded-full bg-debt-good/10 flex items-center justify-center text-debt-good">
                       💸
                     </div>
                     <div>
-                      <p className="font-medium text-gray-800">
+                      <p className="font-medium text-gray-800 dark:text-gray-100">
                         {formatCurrency(payment.amount)}
                       </p>
-                      <p className="text-xs text-gray-400">
+                      <p className="text-xs text-gray-400 dark:text-gray-500">
                         {formatDate(payment.date)}
                       </p>
                     </div>
@@ -305,7 +332,7 @@ function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps) {
                       {typeInfo.label}
                     </span>
                     {payment.notes && (
-                      <p className="text-xs text-gray-400 mt-1 max-w-[120px] truncate">
+                      <p className="text-xs text-gray-400 dark:text-gray-500 mt-1 max-w-[120px] truncate">
                         {payment.notes}
                       </p>
                     )}
@@ -316,10 +343,10 @@ function PaymentHistoryModal({ debt, onClose }: PaymentHistoryModalProps) {
           </div>
         )}
 
-        <div className="mt-4 pt-4 border-t border-gray-100">
+        <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border">
           <button
             onClick={onClose}
-            className="w-full py-2 px-4 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            className="w-full py-2 px-4 bg-gray-100 dark:bg-dark-surface-elevated text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-dark-border transition-colors"
           >
             Close
           </button>
@@ -395,15 +422,15 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 my-8">
-        <h3 className="text-xl font-bold text-gray-800 mb-4">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-xl max-w-lg w-full p-6 my-8">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">
           Edit {debt.nickname || debt.name}
         </h3>
 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Debt Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Debt Name *
             </label>
             <input
@@ -413,8 +440,8 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
               }}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-                errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300'
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 ${
+                errors.name ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-dark-border'
               }`}
               required
             />
@@ -423,21 +450,21 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
 
           {/* Nickname */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Nickname (optional)
             </label>
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100"
               placeholder="A fun name to motivate you"
             />
           </div>
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Category
             </label>
             <div className="grid grid-cols-4 gap-2">
@@ -449,7 +476,7 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
                   className={`py-2 px-2 rounded-lg text-center transition-colors ${
                     category === cat.value
                       ? 'bg-brand-primary text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-dark-surface-elevated text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border'
                   }`}
                 >
                   <span className="text-lg block">{cat.emoji}</span>
@@ -462,11 +489,11 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
           {/* Balance and Interest Rate */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Current Balance *
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
                 <input
                   type="number"
                   step="0.01"
@@ -476,8 +503,8 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
                     setCurrentBalance(e.target.value);
                     if (errors.currentBalance) setErrors((prev) => ({ ...prev, currentBalance: '' }));
                   }}
-                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-                    errors.currentBalance ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 ${
+                    errors.currentBalance ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-dark-border'
                   }`}
                   required
                 />
@@ -488,7 +515,7 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Interest Rate *
               </label>
               <div className="relative">
@@ -502,12 +529,12 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
                     setInterestRate(e.target.value);
                     if (errors.interestRate) setErrors((prev) => ({ ...prev, interestRate: '' }));
                   }}
-                  className={`w-full pr-8 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-                    errors.interestRate ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full pr-8 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 ${
+                    errors.interestRate ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-dark-border'
                   }`}
                   required
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
               </div>
               {errors.interestRate && (
                 <p className="text-xs text-red-500 mt-1">{errors.interestRate}</p>
@@ -518,11 +545,11 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
           {/* Minimum Payment and Due Day */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Minimum Payment *
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
                 <input
                   type="number"
                   step="0.01"
@@ -532,8 +559,8 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
                     setMinimumPayment(e.target.value);
                     if (errors.minimumPayment) setErrors((prev) => ({ ...prev, minimumPayment: '' }));
                   }}
-                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-                    errors.minimumPayment ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 ${
+                    errors.minimumPayment ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-dark-border'
                   }`}
                   required
                 />
@@ -544,13 +571,13 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Due Day of Month
               </label>
               <select
                 value={dueDay}
                 onChange={(e) => setDueDay(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100"
               >
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
                   <option key={day} value={day}>
@@ -562,16 +589,16 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
           </div>
 
           {/* Pause Toggle */}
-          <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
+          <div className="flex items-center justify-between p-3 bg-gray-50 dark:bg-dark-surface-elevated rounded-lg">
             <div>
-              <p className="font-medium text-gray-700">Pause Debt</p>
-              <p className="text-xs text-gray-500">Temporarily exclude from payoff calculations</p>
+              <p className="font-medium text-gray-700 dark:text-gray-200">Pause Debt</p>
+              <p className="text-xs text-gray-500 dark:text-gray-400">Temporarily exclude from payoff calculations</p>
             </div>
             <button
               type="button"
               onClick={() => setIsPaused(!isPaused)}
               className={`relative w-12 h-6 rounded-full transition-colors ${
-                isPaused ? 'bg-amber-500' : 'bg-gray-300'
+                isPaused ? 'bg-amber-500' : 'bg-gray-300 dark:bg-dark-border'
               }`}
             >
               <span
@@ -584,13 +611,13 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Notes (optional)
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent resize-none"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 resize-none"
               rows={2}
               placeholder="Any additional notes..."
             />
@@ -601,7 +628,7 @@ function EditDebtModal({ debt, onClose }: EditDebtModalProps) {
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 py-2 px-4 border border-gray-300 dark:border-dark-border rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-surface-elevated transition-colors"
             >
               Cancel
             </button>
@@ -643,10 +670,10 @@ export function DebtList() {
 
   if (debts.length === 0) {
     return (
-      <div className="bg-white rounded-2xl shadow-lg p-8 text-center">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-lg p-8 text-center">
         <div className="text-6xl mb-4">💳</div>
-        <h3 className="text-xl font-bold text-gray-800 mb-2">No Debts Yet</h3>
-        <p className="text-gray-500">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">No Debts Yet</h3>
+        <p className="text-gray-500 dark:text-gray-400">
           Add your first debt to start tracking your progress and help Penny grow!
         </p>
       </div>
@@ -655,10 +682,10 @@ export function DebtList() {
 
   return (
     <>
-      <div className="bg-white rounded-2xl shadow-lg p-6">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-lg p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-xl font-bold text-gray-800">Your Debts</h2>
-          <span className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Your Debts</h2>
+          <span className="text-sm text-gray-500 dark:text-gray-400">
             {strategy.type === 'avalanche' ? '🔥 Highest interest first' : '❄️ Lowest balance first'}
           </span>
         </div>
@@ -668,13 +695,13 @@ export function DebtList() {
             <div
               key={debt.id}
               className={`border rounded-xl p-4 ${
-                index === 0 ? 'border-brand-primary bg-brand-primary/5' : 'border-gray-200'
+                index === 0 ? 'border-brand-primary bg-brand-primary/5 dark:bg-brand-primary/10' : 'border-gray-200 dark:border-dark-border'
               }`}
             >
               <div className="flex items-start justify-between mb-2">
                 <div>
                   <div className="flex items-center gap-2">
-                    <h3 className="font-semibold text-gray-800">
+                    <h3 className="font-semibold text-gray-800 dark:text-gray-100">
                       {debt.nickname || debt.name}
                     </h3>
                     {index === 0 && !debt.isPaused && (
@@ -688,7 +715,7 @@ export function DebtList() {
                       </span>
                     )}
                   </div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-gray-500 dark:text-gray-400">
                     {categoryLabels[debt.category]} • {debt.interestRate}% APR
                   </p>
                 </div>
@@ -696,7 +723,7 @@ export function DebtList() {
                   <p className="text-lg font-bold text-debt-danger">
                     {formatCurrency(debt.currentBalance)}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-gray-400 dark:text-gray-500">
                     of {formatCurrency(debt.originalBalance)}
                   </p>
                 </div>
@@ -704,13 +731,13 @@ export function DebtList() {
 
               {/* Progress bar */}
               <div className="mb-3">
-                <div className="h-2 bg-gray-200 rounded-full overflow-hidden">
+                <div className="h-2 bg-gray-200 dark:bg-dark-surface-elevated rounded-full overflow-hidden">
                   <div
                     className="h-full bg-debt-good transition-all duration-300"
                     style={{ width: `${getProgressPercent(debt)}%` }}
                   />
                 </div>
-                <p className="text-xs text-gray-500 mt-1">
+                <p className="text-xs text-gray-500 dark:text-gray-400 mt-1">
                   {getProgressPercent(debt)}% paid off
                 </p>
               </div>
@@ -725,7 +752,7 @@ export function DebtList() {
                 </button>
                 <button
                   onClick={() => setHistoryDebt(debt)}
-                  className="py-2 px-3 text-gray-400 hover:text-blue-500 hover:bg-blue-50 rounded-lg transition-colors relative"
+                  className="py-2 px-3 text-gray-400 hover:text-blue-500 hover:bg-blue-50 dark:hover:bg-blue-900/20 rounded-lg transition-colors relative"
                   title="Payment history"
                 >
                   📋
@@ -748,7 +775,7 @@ export function DebtList() {
                       deleteDebt(debt.id);
                     }
                   }}
-                  className="py-2 px-3 text-gray-400 hover:text-debt-danger hover:bg-red-50 rounded-lg transition-colors"
+                  className="py-2 px-3 text-gray-400 hover:text-debt-danger hover:bg-red-50 dark:hover:bg-red-900/20 rounded-lg transition-colors"
                   title="Delete debt"
                 >
                   🗑️
@@ -760,10 +787,10 @@ export function DebtList() {
 
         {/* Paid off debts toggle */}
         {paidOffDebts.length > 0 && (
-          <div className="mt-6 pt-4 border-t border-gray-100">
+          <div className="mt-6 pt-4 border-t border-gray-100 dark:border-dark-border">
             <button
               onClick={() => setShowPaidOff(!showPaidOff)}
-              className="w-full flex items-center justify-between py-2 text-sm text-gray-500 hover:text-gray-700"
+              className="w-full flex items-center justify-between py-2 text-sm text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300"
             >
               <span>Paid Off Debts ({paidOffDebts.length})</span>
               <span>{showPaidOff ? '▲' : '▼'}</span>
@@ -778,7 +805,7 @@ export function DebtList() {
                   >
                     <div className="flex items-center gap-2">
                       <span className="text-lg">🎉</span>
-                      <span className="font-medium text-gray-700">
+                      <span className="font-medium text-gray-700 dark:text-gray-200">
                         {debt.nickname || debt.name}
                       </span>
                     </div>

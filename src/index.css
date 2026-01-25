@@ -1,5 +1,8 @@
 @import "tailwindcss";
 
+/* Enable dark mode via class */
+@custom-variant dark (&:where(.dark, .dark *));
+
 /* DebtPetApp Custom Styles */
 @theme {
   /* Custom colors for the app */
@@ -19,15 +22,107 @@
   --color-brand-primary: #6366f1;
   --color-brand-secondary: #8b5cf6;
   --color-brand-accent: #f59e0b;
+
+  /* Dark mode surface colors */
+  --color-dark-bg: #0f172a;
+  --color-dark-surface: #1e293b;
+  --color-dark-surface-elevated: #334155;
+  --color-dark-border: #475569;
 }
 
 /* Base styles */
 body {
-  @apply bg-gray-50 text-gray-900 antialiased;
+  @apply bg-gray-50 text-gray-900 antialiased dark:bg-dark-bg dark:text-gray-100;
   min-height: 100vh;
 }
 
 /* Smooth transitions for pet animations */
 .pet-transition {
   @apply transition-all duration-500 ease-in-out;
+}
+
+/* Theme transition for smooth dark mode switching */
+html {
+  @apply transition-colors duration-200;
+}
+
+/* Input styles for dark mode */
+input[type="number"]::-webkit-inner-spin-button,
+input[type="number"]::-webkit-outer-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+/* Scrollbar styling for dark mode */
+.dark ::-webkit-scrollbar {
+  width: 8px;
+}
+
+.dark ::-webkit-scrollbar-track {
+  background: #1e293b;
+}
+
+.dark ::-webkit-scrollbar-thumb {
+  background: #475569;
+  border-radius: 4px;
+}
+
+.dark ::-webkit-scrollbar-thumb:hover {
+  background: #64748b;
+}
+
+/* Achievement Toast Animations */
+@keyframes slide-in-right {
+  0% {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  100% {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+@keyframes shine {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(200%);
+  }
+}
+
+@keyframes bounce-subtle {
+  0%, 100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-5px);
+  }
+}
+
+.animate-slide-in-right {
+  animation: slide-in-right 0.4s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+.animate-shine {
+  animation: shine 2s ease-in-out infinite;
+}
+
+.animate-bounce-subtle {
+  animation: bounce-subtle 1s ease-in-out infinite;
+}
+
+/* Achievement badge unlock pulse */
+@keyframes pulse-glow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(251, 191, 36, 0.4);
+  }
+  50% {
+    box-shadow: 0 0 20px 10px rgba(251, 191, 36, 0);
+  }
+}
+
+.animate-pulse-glow {
+  animation: pulse-glow 2s ease-in-out infinite;
 }

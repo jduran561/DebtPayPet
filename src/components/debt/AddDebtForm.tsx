@@ -7,6 +7,7 @@ import { useDebtStore } from '../../store';
 import { usePetStore } from '../../store';
 import type { DebtCategory } from '../../types/debt';
 import { XP_REWARDS } from '../../types/pet';
+import { useAchievementChecker } from '../../hooks/useAchievementChecker';
 
 interface AddDebtFormProps {
   onClose: () => void;
@@ -36,6 +37,7 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
 
   const { addDebt, debts } = useDebtStore();
   const { addXp } = usePetStore();
+  const { onDebtAdded } = useAchievementChecker();
 
   const validateForm = (): boolean => {
     const newErrors: Record<string, string> = {};
@@ -102,17 +104,20 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
       addXp(XP_REWARDS.FIRST_DEBT_ADDED, 'Added first debt - journey begins!');
     }
 
+    // Trigger achievement check
+    onDebtAdded();
+
     onClose();
   };
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 overflow-y-auto">
-      <div className="bg-white rounded-2xl shadow-xl max-w-lg w-full p-6 my-8">
-        <h3 className="text-xl font-bold text-gray-800 mb-2">
+      <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-xl max-w-lg w-full p-6 my-8">
+        <h3 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-2">
           {isFirstDebt ? 'Add Your First Debt' : 'Add New Debt'}
         </h3>
         {isFirstDebt && (
-          <p className="text-sm text-gray-500 mb-4">
+          <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
             Start your debt-free journey! Adding your first debt earns you {XP_REWARDS.FIRST_DEBT_ADDED} XP.
           </p>
         )}
@@ -120,7 +125,7 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
         <form onSubmit={handleSubmit} className="space-y-4">
           {/* Debt Name */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Debt Name *
             </label>
             <input
@@ -130,8 +135,8 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
                 setName(e.target.value);
                 if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
               }}
-              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-                errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300'
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 ${
+                errors.name ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-dark-border'
               }`}
               placeholder="e.g., Chase Sapphire Preferred"
               required
@@ -143,22 +148,22 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
 
           {/* Nickname */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Nickname (optional)
             </label>
             <input
               type="text"
               value={nickname}
               onChange={(e) => setNickname(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100"
               placeholder="e.g., The Beast, Vacation Hangover"
             />
-            <p className="text-xs text-gray-400 mt-1">A fun name to motivate you</p>
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">A fun name to motivate you</p>
           </div>
 
           {/* Category */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Category *
             </label>
             <div className="grid grid-cols-4 gap-2">
@@ -170,7 +175,7 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
                   className={`py-2 px-2 rounded-lg text-center transition-colors ${
                     category === cat.value
                       ? 'bg-brand-primary text-white'
-                      : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                      : 'bg-gray-100 dark:bg-dark-surface-elevated text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-dark-border'
                   }`}
                 >
                   <span className="text-lg block">{cat.emoji}</span>
@@ -183,11 +188,11 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
           {/* Balance and Interest Rate - Side by side */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Current Balance *
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
                 <input
                   type="number"
                   step="0.01"
@@ -197,8 +202,8 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
                     setBalance(e.target.value);
                     if (errors.balance) setErrors((prev) => ({ ...prev, balance: '' }));
                   }}
-                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-                    errors.balance ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 ${
+                    errors.balance ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-dark-border'
                   }`}
                   placeholder="0.00"
                   required
@@ -210,7 +215,7 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Interest Rate *
               </label>
               <div className="relative">
@@ -224,13 +229,13 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
                     setInterestRate(e.target.value);
                     if (errors.interestRate) setErrors((prev) => ({ ...prev, interestRate: '' }));
                   }}
-                  className={`w-full pr-8 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-                    errors.interestRate ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full pr-8 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 ${
+                    errors.interestRate ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-dark-border'
                   }`}
                   placeholder="18.99"
                   required
                 />
-                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
+                <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">%</span>
               </div>
               {errors.interestRate && (
                 <p className="text-xs text-red-500 mt-1">{errors.interestRate}</p>
@@ -241,11 +246,11 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
           {/* Minimum Payment and Due Day - Side by side */}
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Minimum Payment *
               </label>
               <div className="relative">
-                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500">$</span>
+                <span className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500 dark:text-gray-400">$</span>
                 <input
                   type="number"
                   step="0.01"
@@ -255,8 +260,8 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
                     setMinimumPayment(e.target.value);
                     if (errors.minimumPayment) setErrors((prev) => ({ ...prev, minimumPayment: '' }));
                   }}
-                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
-                    errors.minimumPayment ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 ${
+                    errors.minimumPayment ? 'border-red-500 bg-red-50 dark:bg-red-900/20' : 'border-gray-300 dark:border-dark-border'
                   }`}
                   placeholder="0.00"
                   required
@@ -268,13 +273,13 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
                 Due Day of Month
               </label>
               <select
                 value={dueDay}
                 onChange={(e) => setDueDay(e.target.value)}
-                className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                className="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100"
               >
                 {Array.from({ length: 31 }, (_, i) => i + 1).map((day) => (
                   <option key={day} value={day}>
@@ -287,13 +292,13 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
 
           {/* Notes */}
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-sm font-medium text-gray-700 dark:text-gray-300 mb-1">
               Notes (optional)
             </label>
             <textarea
               value={notes}
               onChange={(e) => setNotes(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent resize-none"
+              className="w-full px-4 py-2 border border-gray-300 dark:border-dark-border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent bg-white dark:bg-dark-surface-elevated dark:text-gray-100 resize-none"
               rows={2}
               placeholder="Any additional notes..."
             />
@@ -304,7 +309,7 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
             <button
               type="button"
               onClick={onClose}
-              className="flex-1 py-2 px-4 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors"
+              className="flex-1 py-2 px-4 border border-gray-300 dark:border-dark-border rounded-lg text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-dark-surface-elevated transition-colors"
             >
               Cancel
             </button>

@@ -10,11 +10,11 @@ export function NotificationSettings() {
     useNotificationStore();
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
+    <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-lg p-6">
       <div className="flex items-center justify-between mb-6">
         <div>
-          <h2 className="text-xl font-bold text-gray-800">Notifications</h2>
-          <p className="text-sm text-gray-500">
+          <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100">Notifications</h2>
+          <p className="text-sm text-gray-500 dark:text-gray-400">
             Set up reminders to stay on track
           </p>
         </div>
@@ -27,7 +27,7 @@ export function NotificationSettings() {
             onChange={(e) => setEnabled(e.target.checked)}
             className="sr-only peer"
           />
-          <div className="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
+          <div className="w-11 h-6 bg-gray-200 dark:bg-dark-border peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-brand-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-brand-primary"></div>
         </label>
       </div>
 
@@ -41,7 +41,7 @@ export function NotificationSettings() {
           return (
             <div
               key={reminder.id}
-              className="p-4 bg-gray-50 rounded-xl border border-gray-100"
+              className="p-4 bg-gray-50 dark:bg-dark-surface-elevated rounded-xl border border-gray-100 dark:border-dark-border"
             >
               <div className="flex items-start justify-between">
                 <div className="flex-1">
@@ -51,9 +51,9 @@ export function NotificationSettings() {
                       {reminder.type === 'weekly' && '🔄'}
                       {reminder.type === 'inactivity' && '🐉'}
                     </span>
-                    <h3 className="font-medium text-gray-800">{labels.title}</h3>
+                    <h3 className="font-medium text-gray-800 dark:text-gray-100">{labels.title}</h3>
                   </div>
-                  <p className="text-sm text-gray-500 mt-1 ml-7">
+                  <p className="text-sm text-gray-500 dark:text-gray-400 mt-1 ml-7">
                     {labels.description}
                   </p>
                 </div>
@@ -66,7 +66,7 @@ export function NotificationSettings() {
                     onChange={() => toggleReminder(reminder.id)}
                     className="sr-only peer"
                   />
-                  <div className="w-9 h-5 bg-gray-200 peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary"></div>
+                  <div className="w-9 h-5 bg-gray-200 dark:bg-dark-border peer-focus:outline-none peer-focus:ring-2 peer-focus:ring-brand-primary/20 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-brand-primary"></div>
                 </label>
               </div>
 
@@ -74,7 +74,7 @@ export function NotificationSettings() {
               {reminder.enabled && (
                 <div className="mt-3 ml-7">
                   {reminder.type === 'due_date' && (
-                    <label className="flex items-center gap-2 text-sm text-gray-600">
+                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <span>Remind me</span>
                       <input
                         type="number"
@@ -86,14 +86,14 @@ export function NotificationSettings() {
                             daysBefore: parseInt(e.target.value) || 3,
                           })
                         }
-                        className="w-14 px-2 py-1 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
+                        className="w-14 px-2 py-1 border border-gray-300 dark:border-dark-border rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary bg-white dark:bg-dark-surface dark:text-gray-100"
                       />
                       <span>days before due date</span>
                     </label>
                   )}
 
                   {reminder.type === 'weekly' && (
-                    <label className="flex items-center gap-2 text-sm text-gray-600">
+                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <span>Remind me every</span>
                       <select
                         value={reminder.dayOfWeek ?? 0}
@@ -102,7 +102,7 @@ export function NotificationSettings() {
                             dayOfWeek: parseInt(e.target.value),
                           })
                         }
-                        className="px-2 py-1 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
+                        className="px-2 py-1 border border-gray-300 dark:border-dark-border rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary bg-white dark:bg-dark-surface dark:text-gray-100"
                       >
                         {DAY_LABELS.map((day, index) => (
                           <option key={day} value={index}>
@@ -114,7 +114,7 @@ export function NotificationSettings() {
                   )}
 
                   {reminder.type === 'inactivity' && (
-                    <label className="flex items-center gap-2 text-sm text-gray-600">
+                    <label className="flex items-center gap-2 text-sm text-gray-600 dark:text-gray-400">
                       <span>Remind me after</span>
                       <input
                         type="number"
@@ -126,7 +126,7 @@ export function NotificationSettings() {
                             inactiveDays: parseInt(e.target.value) || 7,
                           })
                         }
-                        className="w-14 px-2 py-1 border border-gray-300 rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary"
+                        className="w-14 px-2 py-1 border border-gray-300 dark:border-dark-border rounded-lg text-center focus:outline-none focus:ring-2 focus:ring-brand-primary/20 focus:border-brand-primary bg-white dark:bg-dark-surface dark:text-gray-100"
                       />
                       <span>days away</span>
                     </label>
@@ -139,8 +139,8 @@ export function NotificationSettings() {
       </div>
 
       {/* Info note */}
-      <div className="mt-6 p-3 bg-blue-50 rounded-lg border border-blue-100">
-        <p className="text-sm text-blue-700">
+      <div className="mt-6 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg border border-blue-100 dark:border-blue-800">
+        <p className="text-sm text-blue-700 dark:text-blue-300">
           <span className="font-medium">Note:</span> Reminders appear when you
           open the app. Browser push notifications coming soon!
         </p>

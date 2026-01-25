@@ -29,13 +29,13 @@ export function DebtSummaryCard() {
   };
 
   return (
-    <div className="bg-white rounded-2xl shadow-lg p-6">
-      <h2 className="text-xl font-bold text-gray-800 mb-4">Debt Overview</h2>
+    <div className="bg-white dark:bg-dark-surface rounded-2xl shadow-lg p-6">
+      <h2 className="text-xl font-bold text-gray-800 dark:text-gray-100 mb-4">Debt Overview</h2>
 
       {debts.length === 0 ? (
         <div className="text-center py-8">
-          <p className="text-gray-500">No debts added yet.</p>
-          <p className="text-sm text-gray-400 mt-2">
+          <p className="text-gray-500 dark:text-gray-400">No debts added yet.</p>
+          <p className="text-sm text-gray-400 dark:text-gray-500 mt-2">
             Add your first debt to start your journey!
           </p>
         </div>
@@ -43,7 +43,7 @@ export function DebtSummaryCard() {
         <>
           {/* Total Debt */}
           <div className="text-center mb-6">
-            <p className="text-sm text-gray-500">Total Debt</p>
+            <p className="text-sm text-gray-500 dark:text-gray-400">Total Debt</p>
             <p className="text-4xl font-bold text-debt-danger">
               {formatCurrency(totalDebt)}
             </p>
@@ -51,45 +51,45 @@ export function DebtSummaryCard() {
 
           {/* Stats Grid */}
           <div className="grid grid-cols-2 gap-4">
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Active Debts</p>
-              <p className="text-2xl font-semibold text-gray-800">
+            <div className="bg-gray-50 dark:bg-dark-surface-elevated rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Active Debts</p>
+              <p className="text-2xl font-semibold text-gray-800 dark:text-gray-100">
                 {activeDebts.length}
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Paid Off</p>
+            <div className="bg-gray-50 dark:bg-dark-surface-elevated rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Paid Off</p>
               <p className="text-2xl font-semibold text-debt-paid">
                 {paidOffDebts.length}
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Min. Payments</p>
-              <p className="text-lg font-semibold text-gray-800">
+            <div className="bg-gray-50 dark:bg-dark-surface-elevated rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Min. Payments</p>
+              <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 {formatCurrency(totalMinimumPayments)}
-                <span className="text-xs text-gray-400">/mo</span>
+                <span className="text-xs text-gray-400 dark:text-gray-500">/mo</span>
               </p>
             </div>
 
-            <div className="bg-gray-50 rounded-lg p-3">
-              <p className="text-xs text-gray-500">Avg. Interest</p>
-              <p className="text-lg font-semibold text-gray-800">
+            <div className="bg-gray-50 dark:bg-dark-surface-elevated rounded-lg p-3">
+              <p className="text-xs text-gray-500 dark:text-gray-400">Avg. Interest</p>
+              <p className="text-lg font-semibold text-gray-800 dark:text-gray-100">
                 {averageInterestRate.toFixed(2)}%
               </p>
             </div>
           </div>
 
           {/* Strategy Indicator */}
-          <div className="mt-4 pt-4 border-t border-gray-100">
+          <div className="mt-4 pt-4 border-t border-gray-100 dark:border-dark-border">
             <div className="flex items-center justify-between">
-              <span className="text-sm text-gray-500">Payoff Strategy</span>
+              <span className="text-sm text-gray-500 dark:text-gray-400">Payoff Strategy</span>
               <span className="text-sm font-medium text-brand-primary capitalize">
                 {strategy.type} Method
               </span>
             </div>
-            <p className="text-xs text-gray-400 mt-1">
+            <p className="text-xs text-gray-400 dark:text-gray-500 mt-1">
               {strategy.type === 'avalanche'
                 ? 'Targeting highest interest first to minimize total interest paid'
                 : 'Targeting smallest balance first for quick wins'}

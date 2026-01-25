@@ -114,12 +114,4 @@ export const PET_APPEARANCES: Record<PetStage, PetAppearance> = {
   },
 };
 
-export interface Achievement {
-  id: string;
-  name: string;
-  description: string;
-  icon: string;
-  xpReward: number;
-  unlockedAt?: Date;
-  isSecret: boolean;
-}
+// Achievement type moved to types/achievements.ts for comprehensive definitions
