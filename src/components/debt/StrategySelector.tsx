@@ -13,7 +13,7 @@ export function StrategySelector() {
   const handleStrategyChange = (type: 'avalanche' | 'snowball') => {
     if (strategy.type !== type) {
       setStrategy({ ...strategy, type });
-      addXp(XP_REWARDS.special.strategySelected, `Selected ${type} method`);
+      addXp(XP_REWARDS.STRATEGY_SELECTED, `Selected ${type} method`);
     }
   };
 

@@ -5,7 +5,7 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import type { Pet, PetStage, EvolutionEvent, PetMood } from '../types/pet';
-import { EVOLUTION_THRESHOLDS, XP_REWARDS } from '../types/pet';
+import { EVOLUTION_THRESHOLDS } from '../types/pet';
 
 interface PetState {
   pet: Pet;

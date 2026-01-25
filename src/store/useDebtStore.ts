@@ -4,7 +4,7 @@
 
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import type { Debt, Payment, PayoffStrategy, DebtCategory } from '../types/debt';
+import type { Debt, Payment, PayoffStrategy } from '../types/debt';
 
 interface DebtState {
   debts: Debt[];

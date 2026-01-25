@@ -32,21 +32,58 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
   const [dueDay, setDueDay] = useState('1');
   const [category, setCategory] = useState<DebtCategory>('credit_card');
   const [notes, setNotes] = useState('');
+  const [errors, setErrors] = useState<Record<string, string>>({});
 
   const { addDebt, debts } = useDebtStore();
   const { addXp } = usePetStore();
 
+  const validateForm = (): boolean => {
+    const newErrors: Record<string, string> = {};
+
+    // Validate name
+    if (!name.trim()) {
+      newErrors.name = 'Debt name is required';
+    }
+
+    // Validate balance
+    const balanceNum = parseFloat(balance);
+    if (isNaN(balanceNum) || balanceNum <= 0) {
+      newErrors.balance = 'Balance must be greater than $0';
+    } else if (balanceNum > 10000000) {
+      newErrors.balance = 'Balance seems too high. Please verify.';
+    }
+
+    // Validate interest rate
+    const interestNum = parseFloat(interestRate);
+    if (isNaN(interestNum) || interestNum < 0) {
+      newErrors.interestRate = 'Interest rate must be 0% or higher';
+    } else if (interestNum > 100) {
+      newErrors.interestRate = 'Interest rate cannot exceed 100%';
+    }
+
+    // Validate minimum payment
+    const minPaymentNum = parseFloat(minimumPayment);
+    if (isNaN(minPaymentNum) || minPaymentNum < 0) {
+      newErrors.minimumPayment = 'Minimum payment must be $0 or higher';
+    } else if (minPaymentNum > balanceNum) {
+      newErrors.minimumPayment = 'Minimum payment cannot exceed balance';
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    if (!validateForm()) {
+      return;
+    }
 
     const balanceNum = parseFloat(balance);
     const interestNum = parseFloat(interestRate);
     const minPaymentNum = parseFloat(minimumPayment);
     const dueDayNum = parseInt(dueDay);
-
-    if (isNaN(balanceNum) || isNaN(interestNum) || isNaN(minPaymentNum)) {
-      return;
-    }
 
     addDebt({
       name,
@@ -62,7 +99,7 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
 
     // Award XP for adding first debt
     if (debts.length === 0) {
-      addXp(XP_REWARDS.special.firstDebtAdded, 'Added first debt - journey begins!');
+      addXp(XP_REWARDS.FIRST_DEBT_ADDED, 'Added first debt - journey begins!');
     }
 
     onClose();
@@ -76,7 +113,7 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
         </h3>
         {isFirstDebt && (
           <p className="text-sm text-gray-500 mb-4">
-            Start your debt-free journey! Adding your first debt earns you {XP_REWARDS.special.firstDebtAdded} XP.
+            Start your debt-free journey! Adding your first debt earns you {XP_REWARDS.FIRST_DEBT_ADDED} XP.
           </p>
         )}
 
@@ -89,11 +126,19 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
             <input
               type="text"
               value={name}
-              onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+              onChange={(e) => {
+                setName(e.target.value);
+                if (errors.name) setErrors((prev) => ({ ...prev, name: '' }));
+              }}
+              className={`w-full px-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+                errors.name ? 'border-red-500 bg-red-50' : 'border-gray-300'
+              }`}
               placeholder="e.g., Chase Sapphire Preferred"
               required
             />
+            {errors.name && (
+              <p className="text-xs text-red-500 mt-1">{errors.name}</p>
+            )}
           </div>
 
           {/* Nickname */}
@@ -148,12 +193,20 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
                   step="0.01"
                   min="0.01"
                   value={balance}
-                  onChange={(e) => setBalance(e.target.value)}
-                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  onChange={(e) => {
+                    setBalance(e.target.value);
+                    if (errors.balance) setErrors((prev) => ({ ...prev, balance: '' }));
+                  }}
+                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+                    errors.balance ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="0.00"
                   required
                 />
               </div>
+              {errors.balance && (
+                <p className="text-xs text-red-500 mt-1">{errors.balance}</p>
+              )}
             </div>
 
             <div>
@@ -167,13 +220,21 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
                   min="0"
                   max="100"
                   value={interestRate}
-                  onChange={(e) => setInterestRate(e.target.value)}
-                  className="w-full pr-8 pl-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  onChange={(e) => {
+                    setInterestRate(e.target.value);
+                    if (errors.interestRate) setErrors((prev) => ({ ...prev, interestRate: '' }));
+                  }}
+                  className={`w-full pr-8 pl-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+                    errors.interestRate ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="18.99"
                   required
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-500">%</span>
               </div>
+              {errors.interestRate && (
+                <p className="text-xs text-red-500 mt-1">{errors.interestRate}</p>
+              )}
             </div>
           </div>
 
@@ -190,12 +251,20 @@ export function AddDebtForm({ onClose, isFirstDebt = false }: AddDebtFormProps) 
                   step="0.01"
                   min="0"
                   value={minimumPayment}
-                  onChange={(e) => setMinimumPayment(e.target.value)}
-                  className="w-full pl-8 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent"
+                  onChange={(e) => {
+                    setMinimumPayment(e.target.value);
+                    if (errors.minimumPayment) setErrors((prev) => ({ ...prev, minimumPayment: '' }));
+                  }}
+                  className={`w-full pl-8 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-brand-primary focus:border-transparent ${
+                    errors.minimumPayment ? 'border-red-500 bg-red-50' : 'border-gray-300'
+                  }`}
                   placeholder="0.00"
                   required
                 />
               </div>
+              {errors.minimumPayment && (
+                <p className="text-xs text-red-500 mt-1">{errors.minimumPayment}</p>
+              )}
             </div>
 
             <div>

@@ -10,6 +10,7 @@ import {
   DebtList,
   AddDebtForm,
   StrategySelector,
+  PayoffCalculator,
   NotificationSettings,
   ReminderBanner,
 } from './components';
@@ -117,6 +118,8 @@ function App() {
         {activeTab === 'strategy' && (
           <div className="space-y-6">
             <StrategySelector />
+
+            <PayoffCalculator />
 
             {/* Strategy Tips */}
             <div className="bg-white rounded-2xl shadow-lg p-6">
