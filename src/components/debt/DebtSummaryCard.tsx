@@ -5,8 +5,9 @@
 import { useDebtStore } from '../../store';
 
 export function DebtSummaryCard() {
-  const { debts, getTotalDebt, strategy } = useDebtStore();
+  const { debts, getTotalDebt, getPaymentStreak, strategy } = useDebtStore();
   const totalDebt = getTotalDebt();
+  const streak = getPaymentStreak();
   const activeDebts = debts.filter((d) => !d.isPaused && d.currentBalance > 0);
   const paidOffDebts = debts.filter((d) => d.currentBalance === 0);
 
@@ -41,6 +42,16 @@ export function DebtSummaryCard() {
         </div>
       ) : (
         <>
+          {/* Payment Streak */}
+          {streak > 0 && (
+            <div className="mb-4 p-3 bg-amber-50 dark:bg-amber-900/20 border border-amber-200 dark:border-amber-800/50 rounded-xl flex items-center justify-center gap-2">
+              <span className="text-2xl">🔥</span>
+              <span className="font-semibold text-amber-800 dark:text-amber-200">
+                {streak} day payment streak!
+              </span>
+            </div>
+          )}
+
           {/* Total Debt */}
           <div className="text-center mb-6">
             <p className="text-sm text-gray-500 dark:text-gray-400">Total Debt</p>

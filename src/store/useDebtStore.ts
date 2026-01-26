@@ -23,6 +23,7 @@ interface DebtState {
   getDebtById: (id: string) => Debt | undefined;
   getPaymentsByDebtId: (debtId: string) => Payment[];
   getSortedDebts: () => Debt[]; // Sorted by strategy (avalanche or snowball)
+  getPaymentStreak: () => number; // Consecutive days with at least one payment
 }
 
 // Helper to generate unique IDs
@@ -125,6 +126,29 @@ export const useDebtStore = create<DebtState>()(
             (a, b) => a.currentBalance - b.currentBalance
           );
         }
+      },
+
+      getPaymentStreak: () => {
+        const { payments } = get();
+        const toDateStr = (d: Date) => {
+          const x = new Date(d);
+          return `${x.getFullYear()}-${String(x.getMonth() + 1).padStart(2, '0')}-${String(x.getDate()).padStart(2, '0')}`;
+        };
+        const paymentDates = new Set(payments.map((p) => toDateStr(p.date)));
+        if (paymentDates.size === 0) return 0;
+
+        const todayStr = toDateStr(new Date());
+        const onOrBeforeToday = [...paymentDates].filter((s) => s <= todayStr);
+        if (onOrBeforeToday.length === 0) return 0;
+        const maxStr = onOrBeforeToday.sort().reverse()[0];
+
+        let count = 0;
+        let d = new Date(maxStr + 'T12:00:00');
+        while (paymentDates.has(toDateStr(d))) {
+          count++;
+          d.setDate(d.getDate() - 1);
+        }
+        return count;
       },
     }),
     {

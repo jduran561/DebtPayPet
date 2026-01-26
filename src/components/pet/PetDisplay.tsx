@@ -2,15 +2,33 @@
  * PetDisplay - Shows Penny the virtual pet with current stage and stats
  */
 
+import { useState, useRef, useCallback } from 'react';
 import { usePetStore } from '../../store';
+import { useConfetti } from '../../hooks/useConfetti';
 import { PET_APPEARANCES } from '../../types/pet';
 
+const PAT_COOLDOWN_MS = 30000;
+
 export function PetDisplay() {
-  const { pet, getMood, getProgressToNextStage, getXpToNextStage } = usePetStore();
+  const { pet, getMood, getProgressToNextStage, getXpToNextStage, recordFeeding } = usePetStore();
+  const { triggerSmall } = useConfetti();
+  const [justPatted, setJustPatted] = useState(false);
+  const lastPatRef = useRef(0);
+
   const mood = getMood();
   const progress = getProgressToNextStage();
   const xpToNext = getXpToNextStage();
   const appearance = PET_APPEARANCES[pet.stage];
+
+  const handlePat = useCallback(() => {
+    const now = Date.now();
+    if (now - lastPatRef.current < PAT_COOLDOWN_MS) return;
+    lastPatRef.current = now;
+    recordFeeding();
+    triggerSmall();
+    setJustPatted(true);
+    setTimeout(() => setJustPatted(false), 500);
+  }, [recordFeeding, triggerSmall]);
 
   const sizeClasses = {
     sm: 'w-20 h-20 text-4xl',
@@ -36,11 +54,21 @@ export function PetDisplay() {
           ${appearance.color}
           rounded-full flex items-center justify-center
           shadow-inner pet-transition
-          animate-pulse
+          ${justPatted ? 'animate-pat-bounce' : 'animate-pulse'}
         `}
       >
         <span className="select-none">{appearance.emoji}</span>
       </div>
+
+      {/* Pat Penny */}
+      <button
+        onClick={handlePat}
+        className="mt-3 px-4 py-2 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 text-sm font-medium hover:bg-amber-200 dark:hover:bg-amber-800/50 active:scale-95 transition-all flex items-center gap-2"
+        title="Pat Penny to boost happiness"
+      >
+        <span>❤️</span>
+        <span>Pat {pet.name}</span>
+      </button>
 
       {/* Pet Name and Stage */}
       <h2 className="mt-4 text-2xl font-bold text-gray-800 dark:text-gray-100">{pet.name}</h2>

@@ -5,6 +5,7 @@
 // Pet components
 export { PetDisplay } from './pet/PetDisplay';
 export { EvolutionCelebration } from './pet/EvolutionCelebration';
+export { PennySays } from './pet/PennySays';
 
 // Debt components
 export { DebtSummaryCard } from './debt/DebtSummaryCard';

@@ -5,6 +5,9 @@
 
 /* DebtPetApp Custom Styles */
 @theme {
+  /* Typography */
+  --font-sans: "Outfit", system-ui, sans-serif;
+
   /* Custom colors for the app */
   --color-penny-egg: #f5e6d3;
   --color-penny-hatchling: #a8d5ba;
@@ -13,25 +16,26 @@
   --color-penny-legendary: #9d4edd;
 
   /* Debt status colors */
-  --color-debt-danger: #ef4444;
+  --color-debt-danger: #e11d48;
   --color-debt-warning: #f59e0b;
-  --color-debt-good: #22c55e;
-  --color-debt-paid: #06b6d4;
+  --color-debt-good: #059669;
+  --color-debt-paid: #0d9488;
 
-  /* App brand colors */
+  /* App brand colors – warm indigo + amber */
   --color-brand-primary: #6366f1;
   --color-brand-secondary: #8b5cf6;
   --color-brand-accent: #f59e0b;
 
   /* Dark mode surface colors */
-  --color-dark-bg: #0f172a;
-  --color-dark-surface: #1e293b;
-  --color-dark-surface-elevated: #334155;
-  --color-dark-border: #475569;
+  --color-dark-bg: #0c1222;
+  --color-dark-surface: #1a2234;
+  --color-dark-surface-elevated: #243044;
+  --color-dark-border: #334155;
 }
 
 /* Base styles */
 body {
+  font-family: var(--font-sans);
   @apply bg-gray-50 text-gray-900 antialiased dark:bg-dark-bg dark:text-gray-100;
   min-height: 100vh;
 }
@@ -125,4 +129,16 @@ input[type="number"]::-webkit-outer-spin-button {
 
 .animate-pulse-glow {
   animation: pulse-glow 2s ease-in-out infinite;
+}
+
+/* Pat Penny bounce */
+@keyframes pat-bounce {
+  0%, 100% { transform: scale(1); }
+  25% { transform: scale(1.15); }
+  50% { transform: scale(0.95); }
+  75% { transform: scale(1.05); }
+}
+
+.animate-pat-bounce {
+  animation: pat-bounce 0.5s ease-out;
 }

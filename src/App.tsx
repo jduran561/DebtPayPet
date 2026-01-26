@@ -17,9 +17,11 @@ import {
   AchievementsPanel,
   AchievementToast,
   EvolutionCelebration,
+  PennySays,
 } from './components';
-import { useDebtStore } from './store';
+import { useDebtStore, usePetStore } from './store';
 import { useAchievementChecker } from './hooks/useAchievementChecker';
+import { PET_APPEARANCES } from './types/pet';
 
 type Tab = 'dashboard' | 'debts' | 'strategy' | 'achievements' | 'settings';
 
@@ -27,6 +29,8 @@ function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [showAddDebt, setShowAddDebt] = useState(false);
   const { debts } = useDebtStore();
+  const { pet } = usePetStore();
+  const headerEmoji = PET_APPEARANCES[pet.stage].emoji;
 
   const tabs: { id: Tab; label: string; emoji: string }[] = [
     { id: 'dashboard', label: 'Dashboard', emoji: '🏠' },
@@ -51,7 +55,7 @@ function App() {
         <div className="max-w-4xl mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-3">
-              <span className="text-3xl">🐉</span>
+              <span className="text-3xl" aria-hidden="true">{headerEmoji}</span>
               <div>
                 <h1 className="text-xl font-bold text-gray-800 dark:text-gray-100">DebtPet</h1>
                 <p className="text-xs text-gray-500 dark:text-gray-400">Pay off debt. Grow Penny.</p>
@@ -74,21 +78,29 @@ function App() {
       {/* Tab Navigation */}
       <nav className="bg-white dark:bg-dark-surface border-b border-gray-200 dark:border-dark-border">
         <div className="max-w-4xl mx-auto px-4">
-          <div className="flex gap-1">
+          <div className="relative flex">
             {tabs.map((tab) => (
               <button
                 key={tab.id}
                 onClick={() => setActiveTab(tab.id)}
-                className={`flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors ${
+                className={`flex-1 flex items-center justify-center gap-2 py-3 text-sm font-medium transition-colors ${
                   activeTab === tab.id
-                    ? 'border-brand-primary text-brand-primary'
-                    : 'border-transparent text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300 hover:border-gray-300 dark:hover:border-gray-600'
+                    ? 'text-brand-primary'
+                    : 'text-gray-500 dark:text-gray-400 hover:text-gray-700 dark:hover:text-gray-300'
                 }`}
               >
                 <span>{tab.emoji}</span>
                 <span>{tab.label}</span>
               </button>
             ))}
+            {/* Sliding pill */}
+            <div
+              className="absolute bottom-0 left-0 h-0.5 bg-brand-primary rounded-full transition-all duration-300 ease-out"
+              style={{
+                width: `${100 / tabs.length}%`,
+                transform: `translateX(${tabs.findIndex((t) => t.id === activeTab) * 100}%)`,
+              }}
+            />
           </div>
         </div>
       </nav>
@@ -100,6 +112,7 @@ function App() {
 
         {activeTab === 'dashboard' && (
           <div className="space-y-6">
+            <PennySays />
             {/* Pet and Summary side by side on larger screens */}
             <div className="grid md:grid-cols-2 gap-6">
               <PetDisplay />
