@@ -13,3 +13,5 @@ if (typeof globalThis.localStorage === 'undefined' || typeof globalThis.localSto
     key: (index: number) => Object.keys(store)[index] ?? null,
   } as Storage;
 }
+
+beforeEach(() => localStorage.clear());
