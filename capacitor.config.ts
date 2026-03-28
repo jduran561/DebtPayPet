@@ -8,22 +8,37 @@ const config: CapacitorConfig = {
     androidScheme: 'https'
   },
   android: {
-    backgroundColor: '#7c3aed', // Brand primary color
+    backgroundColor: '#7c3aed',
     allowMixedContent: false,
     captureInput: true,
-    webContentsDebuggingEnabled: false // Set to true for debugging
+    webContentsDebuggingEnabled: false
+  },
+  ios: {
+    backgroundColor: '#7c3aed',
+    contentInset: 'automatic',
+    preferredContentMode: 'mobile',
+    allowsLinkPreview: false,
+    scrollEnabled: true,
+    limitsNavigationsToAppBoundDomains: true,
   },
   plugins: {
     SplashScreen: {
-      launchShowDuration: 2000,
+      launchShowDuration: 500,
+      launchFadeOutDuration: 300,
       backgroundColor: '#7c3aed',
       showSpinner: false,
       androidScaleType: 'CENTER_CROP',
+      iosSpinnerStyle: 'small',
+      launchAutoHide: true,
     },
     StatusBar: {
       style: 'LIGHT',
       backgroundColor: '#7c3aed'
-    }
+    },
+    Keyboard: {
+      resize: 'body',
+      resizeOnFullScreen: true,
+    },
   }
 };
 
