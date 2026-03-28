@@ -39,7 +39,8 @@ export function OpeningAnimation({ onComplete }: Props) {
   // Auto-focus input when name phase begins
   useEffect(() => {
     if (phase === 'name') {
-      setTimeout(() => inputRef.current?.focus(), 100);
+      const timer = setTimeout(() => inputRef.current?.focus(), 100);
+      return () => clearTimeout(timer);
     }
   }, [phase]);
 
