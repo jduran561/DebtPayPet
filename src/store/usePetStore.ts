@@ -26,6 +26,8 @@ interface PetState {
   recordFeeding: () => void;
   setAccessory: (accessory: string | undefined) => void;
   clearLastEvolution: () => void;
+  hasCompletedOnboarding: boolean;
+  completeOnboarding: (name: string) => void;
 
   // Computed helpers
   getMood: () => PetMood;
@@ -72,6 +74,7 @@ export const usePetStore = create<PetState>()(
     (set, get) => ({
       pet: createInitialPet(),
       lastEvolution: null,
+      hasCompletedOnboarding: false,
 
       addXp: (amount, reason) => {
         set((state) => {
@@ -160,6 +163,16 @@ export const usePetStore = create<PetState>()(
 
       clearLastEvolution: () => {
         set({ lastEvolution: null });
+      },
+
+      completeOnboarding: (name) => {
+        set((state) => ({
+          hasCompletedOnboarding: true,
+          pet: {
+            ...state.pet,
+            name: name.trim() || 'Penny',
+          },
+        }));
       },
 
       recordFeeding: () => {
