@@ -37,6 +37,7 @@ function App() {
   const handleOnboardingComplete = (name: string) => {
     completeOnboarding(name);
     setFadingIn(true);
+    setTimeout(() => setFadingIn(false), 500);
   };
 
   const tabs: { id: Tab; label: string; emoji: string }[] = [
