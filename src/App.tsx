@@ -18,6 +18,7 @@ import {
   AchievementToast,
   EvolutionCelebration,
   PennySays,
+  OpeningAnimation,
 } from './components';
 import { useDebtStore, usePetStore } from './store';
 import { useAchievementChecker } from './hooks/useAchievementChecker';
@@ -28,9 +29,15 @@ type Tab = 'dashboard' | 'debts' | 'strategy' | 'achievements' | 'settings';
 function App() {
   const [activeTab, setActiveTab] = useState<Tab>('dashboard');
   const [showAddDebt, setShowAddDebt] = useState(false);
+  const [fadingIn, setFadingIn] = useState(false);
   const { debts } = useDebtStore();
-  const { pet } = usePetStore();
+  const { pet, hasCompletedOnboarding, completeOnboarding } = usePetStore();
   const headerEmoji = PET_APPEARANCES[pet.stage].emoji;
+
+  const handleOnboardingComplete = (name: string) => {
+    completeOnboarding(name);
+    setFadingIn(true);
+  };
 
   const tabs: { id: Tab; label: string; emoji: string }[] = [
     { id: 'dashboard', label: 'Home', emoji: '🏠' },
@@ -48,8 +55,12 @@ function App() {
     checkAllAchievements();
   }, [debts, checkAllAchievements]);
 
+  if (!hasCompletedOnboarding) {
+    return <OpeningAnimation onComplete={handleOnboardingComplete} />;
+  }
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-bg dark:to-slate-900">
+    <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-bg dark:to-slate-900 ${fadingIn ? 'animate-app-fade-in' : ''}`}>
       {/* Header */}
       <header className="bg-white dark:bg-dark-surface shadow-sm sticky top-0 z-40">
         <div className="max-w-4xl mx-auto px-4 py-3">
