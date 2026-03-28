@@ -83,6 +83,7 @@ export function OpeningAnimation({ onComplete }: Props) {
                   opacity="0.9"
                   style={{
                     strokeDasharray: 50,
+                    strokeDashoffset: 50,
                     '--crack-length': '50',
                     animation: 'crack-draw 0.4s ease-out 0s forwards',
                   } as React.CSSProperties}
@@ -97,6 +98,7 @@ export function OpeningAnimation({ onComplete }: Props) {
                   opacity="0.7"
                   style={{
                     strokeDasharray: 30,
+                    strokeDashoffset: 30,
                     '--crack-length': '30',
                     animation: 'crack-draw 0.3s ease-out 0.1s forwards',
                   } as React.CSSProperties}
@@ -110,6 +112,7 @@ export function OpeningAnimation({ onComplete }: Props) {
                   opacity="0.6"
                   style={{
                     strokeDasharray: 20,
+                    strokeDashoffset: 20,
                     '--crack-length': '20',
                     animation: 'crack-draw 0.25s ease-out 0.2s forwards',
                   } as React.CSSProperties}
