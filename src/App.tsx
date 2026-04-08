@@ -63,7 +63,7 @@ function App() {
   return (
     <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-bg dark:to-slate-900 ${fadingIn ? 'animate-app-fade-in' : ''}`}>
       {/* Header */}
-      <header className="fixed top-0 left-0 right-0 bg-white/95 dark:bg-dark-surface/95 backdrop-blur supports-[backdrop-filter]:bg-white/85 supports-[backdrop-filter]:dark:bg-dark-surface/85 border-b border-gray-200/70 dark:border-dark-border/80 shadow-sm z-40">
+      <header className="sticky top-0 bg-white dark:bg-dark-surface border-b border-gray-200/70 dark:border-dark-border/80 shadow-sm z-40">
         <div className="max-w-4xl mx-auto px-4 py-2.5 sm:py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
@@ -90,7 +90,7 @@ function App() {
       </header>
 
       {/* Main Content — padded so it clears the fixed bottom nav */}
-      <main className="max-w-4xl mx-auto px-4 pt-20 sm:pt-24 pb-24">
+      <main className="max-w-4xl mx-auto px-4 pt-6 pb-24">
         {/* Reminder Banner - shows on all tabs */}
         <ReminderBanner />
 
