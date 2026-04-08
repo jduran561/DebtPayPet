@@ -64,20 +64,22 @@ function App() {
     <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-bg dark:to-slate-900 ${fadingIn ? 'animate-app-fade-in' : ''}`}>
       {/* Header */}
       <header className="bg-white dark:bg-dark-surface shadow-sm sticky top-0 z-40">
-        <div className="max-w-4xl mx-auto px-4 py-3">
+        <div className="max-w-4xl mx-auto px-4 py-2.5 sm:py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <span className="text-2xl" aria-hidden="true">{headerEmoji}</span>
+              <span className="text-xl sm:text-2xl" aria-hidden="true">{headerEmoji}</span>
               <div>
                 <h1 className="text-lg font-bold text-gray-800 dark:text-gray-100 leading-tight">DebtPet</h1>
-                <p className="text-[11px] text-gray-500 dark:text-gray-400 leading-tight">Pay off debt. Grow Penny.</p>
+                <p className="hidden sm:block text-[11px] text-gray-500 dark:text-gray-400 leading-tight">
+                  Pay off debt. Grow Penny.
+                </p>
               </div>
             </div>
             <div className="flex items-center gap-2">
               <ThemeToggle />
               <button
                 onClick={() => setShowAddDebt(true)}
-                className="w-9 h-9 bg-brand-primary text-white rounded-full hover:bg-brand-primary/90 transition-colors font-bold text-xl flex items-center justify-center shadow-md"
+                className="w-8 h-8 sm:w-9 sm:h-9 bg-brand-primary text-white rounded-full hover:bg-brand-primary/90 transition-colors font-bold text-lg sm:text-xl flex items-center justify-center shadow-md"
                 aria-label="Add Debt"
               >
                 +
@@ -88,7 +90,7 @@ function App() {
       </header>
 
       {/* Main Content — padded so it clears the fixed bottom nav */}
-      <main className="max-w-4xl mx-auto px-4 pt-5 pb-24">
+      <main className="max-w-4xl mx-auto px-4 pt-6 pb-24">
         {/* Reminder Banner - shows on all tabs */}
         <ReminderBanner />
 
@@ -208,10 +210,10 @@ function App() {
                   : 'text-gray-400 dark:text-gray-500 hover:text-gray-600 dark:hover:text-gray-300'
               }`}
             >
-              <span className={`text-2xl leading-none transition-transform duration-150 ${activeTab === tab.id ? 'scale-110' : 'scale-100'}`}>
+              <span className={`text-xl sm:text-2xl leading-none transition-transform duration-150 ${activeTab === tab.id ? 'scale-110' : 'scale-100'}`}>
                 {tab.emoji}
               </span>
-              <span className={`text-[10px] font-medium leading-none ${activeTab === tab.id ? 'opacity-100' : 'opacity-60'}`}>
+              <span className={`text-[9px] sm:text-[10px] font-medium leading-none ${activeTab === tab.id ? 'opacity-100' : 'opacity-60'}`}>
                 {tab.label}
               </span>
             </button>

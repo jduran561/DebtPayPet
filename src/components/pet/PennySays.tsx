@@ -60,9 +60,13 @@ export function PennySays() {
   }, [mood.mood, streak, totalDebt, debts.length]);
 
   return (
-    <div className="rounded-2xl p-4 bg-gradient-to-r from-brand-primary/10 to-brand-secondary/10 dark:from-brand-primary/20 dark:to-brand-secondary/20 border border-brand-primary/20 dark:border-brand-primary/30">
-      <p className="text-sm text-gray-500 dark:text-gray-400 mb-1">Penny says</p>
-      <p className="text-gray-800 dark:text-gray-100 font-medium">&ldquo;{quote}&rdquo;</p>
+    <div className="rounded-2xl p-4 bg-white/80 dark:bg-dark-surface shadow-sm border border-gray-100 dark:border-dark-border">
+      <p className="text-xs uppercase tracking-wide text-gray-500 dark:text-gray-400 mb-1.5">
+        Penny says
+      </p>
+      <p className="text-[15px] leading-relaxed text-gray-800 dark:text-gray-100 font-medium">
+        &ldquo;{quote}&rdquo;
+      </p>
     </div>
   );
 }

@@ -1,0 +1,77 @@
+# DebtPayPet - Project Rules
+
+## Project Overview
+DebtPayPet is a gamified debt tracking mobile app. Users add their debts, make payments, and grow a virtual pet named "Penny" who evolves as they pay down debt. Built as a hybrid mobile app targeting iOS and Android.
+
+## Tech Stack
+- **Frontend:** React 19, TypeScript 5.9, Vite 7
+- **State:** Zustand 5 with localStorage persistence
+- **Styling:** Tailwind CSS 4 + custom CSS
+- **Mobile:** Capacitor 8 (iOS + Android)
+- **Testing:** Vitest 4, @testing-library/react
+- **Linting:** ESLint 9
+
+## Architecture
+```
+src/
+  components/        # React components organized by domain
+    achievements/    # Badge, panel, toast
+    debt/            # Add form, list, summary, calculator, strategy
+    notifications/   # Reminder banners
+    pet/             # Pet display, evolution, mood, animations
+    settings/        # Notification and theme settings
+    ui/              # Shared UI (theme toggle)
+  hooks/             # Custom React hooks
+  store/             # Zustand stores (debt, pet, achievements, notifications, theme)
+  types/             # TypeScript interfaces and constants
+  assets/            # Static assets
+```
+
+## Key Conventions
+
+### State Management
+- All stores use Zustand `persist` middleware with localStorage
+- Date objects are serialized/deserialized through custom storage handlers
+- Store state is the single source of truth -- no prop drilling for shared state
+- Computed values are exposed as getter methods on the store (e.g., `getTotalDebt()`)
+
+### Pet System
+- 5 evolution stages: egg (0 XP) -> hatchling (100) -> juvenile (500) -> adult (2000) -> legendary (10000)
+- XP earned through payments (10-50 XP) and milestones (100-1000 XP)
+- Pet mood derived from happiness: ecstatic (80+), happy (60+), content (40+), worried (20+), sad (<20)
+
+### Debt System
+- Two payoff strategies: avalanche (highest interest first) and snowball (lowest balance first)
+- Payments reduce `currentBalance` (floored at 0)
+- Payment streaks tracked by consecutive days with at least one payment
+
+### Component Patterns
+- Functional components with hooks only (no class components)
+- Tailwind for styling, with dark mode via `dark:` prefix
+- Mobile-first responsive design
+- Tab-based navigation with fixed bottom nav bar
+
+### TypeScript
+- Strict mode enabled
+- All props and state typed with interfaces in `src/types/`
+- Use `Omit<>` for store action params that auto-generate fields (id, timestamps)
+
+## Commands
+```bash
+npm run dev          # Dev server
+npm run build        # Production build (tsc + vite)
+npm test             # Run tests (vitest run)
+npm run test:watch   # Watch mode tests
+npm run lint         # ESLint
+npm run ios:run      # Build + sync + run iOS
+npm run android:run  # Build + sync + run Android
+```
+
+## Multi-Agent Rules
+This project uses specialized AI agents. Each agent has a defined scope of files it can modify. When working as a specific agent:
+1. **Stay in your scope** -- only modify files within your designated directories
+2. **If you need changes outside your scope**, document the requirement and let the developer hand it to the correct agent
+3. **Follow existing patterns** -- match the coding style of surrounding code
+4. **No over-engineering** -- solve the current problem, don't add speculative features
+
+See `cursor-agents/` for individual agent instructions.
