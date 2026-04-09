@@ -63,7 +63,7 @@ function App() {
   return (
     <div className={`min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 dark:from-dark-bg dark:to-slate-900 ${fadingIn ? 'animate-app-fade-in' : ''}`}>
       {/* Header */}
-      <header className="sticky top-0 bg-white dark:bg-dark-surface border-b border-gray-200/70 dark:border-dark-border/80 shadow-sm z-40">
+      <header className="relative bg-white dark:bg-dark-surface border-b border-gray-200/70 dark:border-dark-border/80 shadow-sm">
         <div className="max-w-4xl mx-auto px-4 py-2.5 sm:py-3">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-2">
